@@ -28,10 +28,10 @@ class App extends Component {
       setTimeout(() => {
         try {
           getAllImages(this.state.searchRequiring, 1).then(({ data }) => {
-            const photos = data.hits.map(el => ({
+            const photos = data.hits.map(photo => ({
               id: nanoid(),
-              webformatURL: el.webformatURL,
-              largeImageURL: el.largeImageURL,
+              webformatURL: photo.webformatURL,
+              largeImageURL: photo.largeImageURL,
             }));
             this.setState({
               photos,
@@ -42,7 +42,6 @@ class App extends Component {
           });
         } catch (error) {
           console.log(error);
-          this.setState({ error });
         }
       }, 1000);
     }
@@ -53,7 +52,7 @@ class App extends Component {
   };
   handleClose = e => {
     if (e.target.nodeName === 'IMG' || e.code === 'Escape') {
-      this.setState({ isModalOpen: true });
+      this.setState({ isModalOpen: false });
     }
   };
   handleSubmit = query => {
