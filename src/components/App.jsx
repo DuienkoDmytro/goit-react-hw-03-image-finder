@@ -21,29 +21,33 @@ class App extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (
-      this.state.searchRequiring &&
-      prevState.searchRequiring !== this.state.searchRequiring
+      (this.state.searchRequiring &&
+        prevState.searchRequiring !== this.state.searchRequiring) ||
+      (this.state.page && prevState.page !== this.state.page)
     ) {
       this.setState({ isLoading: true });
-      setTimeout(() => {
+      const fetch = () => {
         try {
-          getAllImages(this.state.searchRequiring, 1).then(({ data }) => {
-            const photos = data.hits.map(photo => ({
-              id: nanoid(),
-              webformatURL: photo.webformatURL,
-              largeImageURL: photo.largeImageURL,
-            }));
-            this.setState({
-              photos,
-              totalPage: data.totalHits,
-              isLoading: false,
-              page: 1,
-            });
-          });
+          getAllImages(this.state.searchRequiring, this.state.page).then(
+            ({ data }) => {
+              const photos = data.hits.map(photo => ({
+                id: nanoid(),
+                webformatURL: photo.webformatURL,
+                largeImageURL: photo.largeImageURL,
+              }));
+              this.setState({
+                photos,
+                totalPage: data.totalHits,
+                isLoading: false,
+                page: this.state.page,
+              });
+            }
+          );
         } catch (error) {
           console.log(error);
         }
-      }, 1000);
+      };
+      fetch();
     }
   }
 
@@ -56,38 +60,15 @@ class App extends Component {
     }
   };
   handleSubmit = query => {
-    this.setState({ searchRequiring: query.trim() });
+    this.setState({ searchRequiring: query.trim(), page: 1, photos: [] });
   };
 
-  LoadMoreButton = e => {
-    e.preventDefault();
-    e.target.setAttribute('disabled', '');
+  LoadMoreButton = () => {
     this.setState(prev => {
       return { page: prev.page + 1 };
     });
-    this.setState({ isLoading: true });
-
-    setTimeout(() => {
-      try {
-        getAllImages(this.state.searchRequiring, this.state.page).then(
-          ({ data }) => {
-            const photos = data.hits.map(photo => ({
-              id: nanoid(),
-              webformatURL: photo.webformatURL,
-              largeImageURL: photo.largeImageURL,
-            }));
-            this.setState(prev => {
-              return { photos: [...prev.photos, ...photos], isLoading: false };
-            });
-          }
-        );
-      } catch (error) {
-        console.log(error);
-      } finally {
-        e.target.removeAttribute('disabled', '');
-      }
-    }, 1000);
   };
+
   render() {
     return (
       <>
