@@ -36,10 +36,10 @@ class App extends Component {
                 largeImageURL: photo.largeImageURL,
               }));
               this.setState({
-                photos,
                 totalPage: data.totalHits,
                 isLoading: false,
                 page: this.state.page,
+                photos: [...this.state.photos, ...photos],
               });
             }
           );
@@ -65,7 +65,10 @@ class App extends Component {
 
   LoadMoreButton = () => {
     this.setState(prev => {
-      return { page: prev.page + 1 };
+      return {
+        page: prev.page + 1,
+        isLoading: false,
+      };
     });
   };
 
